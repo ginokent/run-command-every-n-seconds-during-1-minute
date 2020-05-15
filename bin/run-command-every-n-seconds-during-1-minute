@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -Ee -o pipefail
+
+# const
+SECONDS_PER_MINUTE=60
+
+# var
+progname=$(basename "$0")
+
+# function
+__stderrDebug  () { [[ $DEBUG != true ]] || printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [  debug]" "$*" 1>&2; }
+__stderrOK     () { printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [     ok]" "$*" 1>&2; }
+__stderrInfo   () { printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [   info]" "$*" 1>&2; }
+__stderrNotice () { printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [ notice]" "$*" 1>&2; }
+__stderrWarn   () { printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [warning]" "$*" 1>&2; }
+__stderrError  () { printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S%z) ${progname:?} [  error]" "$*" 1>&2; }
+
+__checkArgs () {
+  if [[ $1 -lt 1 ]] || [[ ${SECONDS_PER_MINUTE:?} -lt $1 ]]; then
+    __stderrError "\$1 is required for \"Run command every \$1 seconds during 1 minute.\""
+    exit 1
+  fi
+  if [[ ! $2 ]]; then
+    __stderrError "\$2 requires command to run."
+    exit 1
+  fi
+}
+
+__main () {
+  __checkArgs "$@"
+
+  sleep_seconds=$1
+  how_many_times_per_minute=$((SECONDS_PER_MINUTE / sleep_seconds))
+
+  __stderrInfo "run \"${BASH:?} -c '$2'\" in background per ${sleep_seconds:?}s during ${SECONDS_PER_MINUTE:?}s"
+  while i=${i:=1}; do
+    __stderrDebug "run \"${BASH:?} -c '$2' &\" ($i/${how_many_times_per_minute:?})"
+    "${BASH:?}" -c "$2" &
+
+    if [[ $i -ge ${how_many_times_per_minute:?} ]]; then
+      __stderrDebug "break."
+      break
+    fi
+
+    __stderrDebug "sleep ${sleep_seconds:?}"
+    sleep "${sleep_seconds:?}"
+    i=$((i+1))
+  done
+
+  __stderrInfo "desired number of times ($i/${how_many_times_per_minute:?}) has been run."
+}
+
+__main "$@"
