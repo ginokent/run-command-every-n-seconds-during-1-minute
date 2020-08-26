@@ -5,7 +5,11 @@ Run command every N seconds during 1 minute (for via cron)
 ## Installation
 
 ```bash
+# for curl
 sudo bash -cx "curl -fLR https://github.com/djeeno/run-command-every-n-seconds-during-1-minute/releases/latest/download/run-command-every-n-seconds-during-1-minute -o /usr/local/bin/run-command-every-n-seconds-during-1-minute ; chmod -v +x /usr/local/bin/run-command-every-n-seconds-during-1-minute"
+
+# for wget
+sudo bash -cx "wget -c https://github.com/djeeno/run-command-every-n-seconds-during-1-minute/releases/latest/download/run-command-every-n-seconds-during-1-minute -O /usr/local/bin/run-command-every-n-seconds-during-1-minute ; chmod -v +x /usr/local/bin/run-command-every-n-seconds-during-1-minute"
 ```
 
 
